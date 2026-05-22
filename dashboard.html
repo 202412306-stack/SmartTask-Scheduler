@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Task Scheduler - Dashboard</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="app.js"></script>
+</head>
+<body class="bg-[#0F1015] h-screen flex flex-col md:flex-row overflow-hidden text-white font-sans relative">
+
+    <div class="md:hidden bg-[#151722] p-4 flex justify-between items-center border-b border-[#2A2D3E] z-50">
+        <div class="flex items-center space-x-2">
+            <div class="h-8 w-8 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
+                <img src="logo.png" alt="Smart Scheduler" class="h-full w-full object-cover">
+            </div>
+            <span class="font-bold text-lg">Smart Scheduler</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-gray-400 hover:text-white focus:outline-none text-2xl">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-64 bg-[#151722] border-r border-[#2A2D3E] flex flex-col p-4 z-40 h-full">
+        <div class="hidden md:flex items-center space-x-3 mb-8 px-2">
+            <div class="h-10 w-10 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
+                <img src="logo.png" alt="Smart Scheduler" class="h-full w-full object-cover">
+            </div>
+            <h2 class="text-xl font-bold tracking-tight">Smart Scheduler</h2>
+        </div>
+        
+        <div class="text-[11px] font-bold text-gray-500 mb-3 tracking-wider px-2">QUICK ACCESS</div>
+        <nav class="flex flex-col space-y-1 mb-6">
+            <button id="sideNavHome" class="w-full flex items-center justify-between text-gray-200 p-2.5 rounded-xl bg-[#252836] font-medium transition text-left">
+                <div class="flex items-center space-x-3"><i class="fa-solid fa-house text-sm w-5 text-[#7B51D3]"></i><span>Home</span></div>
+            </button>
+            <button id="sideNavTasks" class="w-full flex items-center justify-between text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-[#1E2030] transition text-left">
+                <div class="flex items-center space-x-3"><i class="fa-solid fa-list-check text-sm w-5"></i><span>Tasks</span></div>
+                <span class="bg-[#252836] text-[#7B51D3] text-[11px] font-bold px-2 py-0.5 rounded-full" id="sideBadgeTasks">0</span>
+            </button>
+            <button id="sideNavCalendar" class="w-full flex items-center justify-between text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-[#1E2030] transition text-left">
+                <div class="flex items-center space-x-3"><i class="fa-solid fa-calendar-days text-sm w-5"></i><span>Calendar</span></div>
+            </button>
+            <button id="sideNavReminders" class="w-full flex items-center justify-between text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-[#1E2030] transition text-left">
+                <div class="flex items-center space-x-3"><i class="fa-solid fa-bell text-sm w-5"></i><span>Reminders</span></div>
+            </button>
+            <button id="sideNavInbox" class="w-full flex items-center justify-between text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-[#1E2030] transition text-left">
+                <div class="flex items-center space-x-3"><i class="fa-solid fa-inbox text-sm w-5"></i><span>Inbox</span></div>
+            </button>
+        </nav>
+
+        <div class="mt-auto border-t border-[#2A2D3E] pt-4">
+            <button id="sideNavSettings" class="w-full flex items-center space-x-3 text-gray-400 hover:text-white p-2 rounded-lg transition text-sm text-left">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+    </aside>
+
+    <main id="mainContentScrollBox" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto z-10 scroll-smooth">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div class="relative w-full sm:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </span>
+                <input type="text" id="searchInput" placeholder="Search tasks..." class="w-full bg-[#1A1C28] border border-[#2A2D3E] text-white pl-10 pr-4 py-2 rounded-xl text-sm focus:outline-none focus:border-[#7B51D3] transition">
+            </div>
+            <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+                <span id="userEmail" class="text-sm text-gray-400 font-medium bg-[#1A1C28] px-3 py-1.5 rounded-xl border border-[#2A2D3E]">Loading Account Info...</span>
+                <button id="logoutBtn" class="bg-[#EF4444] px-4 py-1.5 rounded-xl text-sm font-semibold hover:bg-red-600 transition tracking-wide shadow-md">Logout</button>
+            </div>
+        </header>
+
+        <div id="homeCardSection" class="bg-gradient-to-r from-[#7B51D3] to-[#5531A6] rounded-2xl p-6 md:p-8 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-xl relative overflow-hidden">
+            <div class="z-10">
+                <!-- Added id="greetingMsg" to sync with Javascript clock utility -->
+                <h1 id="greetingMsg" class="text-3xl font-extrabold tracking-tight mb-1">Good Morning</h1>
+                <p id="liveDate" class="text-purple-200 text-sm opacity-90">Loading Date...</p>
+                <p id="liveTime" class="text-xl font-bold mt-2 tracking-wide text-white bg-black/20 inline-block px-3 py-1 rounded-lg">Loading Time...</p>
+            </div>
+            <div class="flex space-x-6 md:space-x-10 text-center w-full sm:w-auto justify-around sm:justify-end z-10 bg-black/10 sm:bg-transparent p-4 sm:p-0 rounded-xl">
+                <div><div id="totalTasksCount" class="text-2xl md:text-3xl font-black text-white">0</div><div class="text-[11px] text-purple-200 font-medium uppercase tracking-wider mt-0.5">Total Tasks</div></div>
+                <div><div id="completedTasksCount" class="text-2xl md:text-3xl font-black text-white">0</div><div class="text-[11px] text-purple-200 font-medium uppercase tracking-wider mt-0.5">Completed</div></div>
+                <div><div id="pendingTasksCount" class="text-2xl md:text-3xl font-black text-white">0</div><div class="text-[11px] text-purple-200 font-medium uppercase tracking-wider mt-0.5">Pending</div></div>
+            </div>
+        </div>
+
+        <div class="text-xs font-bold text-gray-400 mb-3 tracking-wider uppercase">Available Features</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div id="featureCardTasks" class="bg-[#1A1C28] border border-[#2A2D3E] p-4 rounded-xl flex flex-col items-center text-center hover:border-[#7B51D3] transition cursor-pointer group">
+                <div class="bg-emerald-500/10 p-3 rounded-xl text-emerald-400 mb-3 group-hover:scale-110 transition"><i class="fa-solid fa-list-check text-xl"></i></div>
+                <h4 class="text-sm font-bold mb-1">My Tasks</h4>
+                <p class="text-[11px] text-gray-500">Create, edit, and manage all tasks</p>
+            </div>
+            <div id="featureCardCalendar" class="bg-[#1A1C28] border border-[#2A2D3E] p-4 rounded-xl flex flex-col items-center text-center hover:border-purple-500 transition cursor-pointer group">
+                <div class="bg-purple-500/10 p-3 rounded-xl text-purple-400 mb-3 group-hover:scale-110 transition"><i class="fa-solid fa-calendar text-xl"></i></div>
+                <h4 class="text-sm font-bold mb-1">Calendar</h4>
+                <p class="text-[11px] text-gray-500">View schedule and plan your week</p>
+            </div>
+            <div id="featureCardReminders" class="bg-[#1A1C28] border border-[#2A2D3E] p-4 rounded-xl flex flex-col items-center text-center hover:border-amber-500 transition cursor-pointer group">
+                <div class="bg-amber-500/10 p-3 rounded-xl text-amber-400 mb-3 group-hover:scale-110 transition"><i class="fa-solid fa-bell text-xl"></i></div>
+                <h4 class="text-sm font-bold mb-1">Reminders</h4>
+                <p class="text-[11px] text-gray-500">Get notified about crucial deadlines</p>
+            </div>
+            <div id="featureCardInbox" class="bg-[#1A1C28] border border-[#2A2D3E] p-4 rounded-xl flex flex-col items-center text-center hover:border-blue-500 transition cursor-pointer group">
+                <div class="bg-blue-500/10 p-3 rounded-xl text-blue-400 mb-3 group-hover:scale-110 transition"><i class="fa-solid fa-inbox text-xl"></i></div>
+                <h4 class="text-sm font-bold mb-1">Inbox</h4>
+                <p class="text-[11px] text-gray-500">Check tracking notifications</p>
+            </div>
+        </div>
+
+        <div id="priorityTasksBoard" class="bg-[#1A1C28] rounded-2xl border border-[#2A2D3E] p-4 md:p-6 shadow-lg scroll-mt-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h3 class="text-lg font-bold tracking-tight">Priority Tasks</h3>
+                
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <button id="addTaskBtn" class="bg-[#7B51D3] hover:bg-[#6a42c0] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md">
+                        <i class="fa-solid fa-plus"></i> <span>Add Task</span>
+                    </button>
+                    <div class="flex bg-[#0F1015] p-1 rounded-xl border border-[#2A2D3E] text-xs">
+                        <button id="filterAll" type="button" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-white bg-[#252836] transition">All</button>
+                        <button id="filterWork" type="button" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-gray-400 hover:text-white transition">Work</button>
+                        <button id="filterPersonal" type="button" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-gray-400 hover:text-white transition">Personal</button>
+                        <button id="filterSchool" type="button" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-gray-400 hover:text-white transition">School</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="taskList" class="flex flex-col space-y-3 min-h-[150px]"></div>
+        </div>
+    </main>
+
+    <!-- Modals Section -->
+    <div id="modTasksModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60] transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="modal-inner bg-[#151722] border border-[#2A2D3E] rounded-2xl w-full max-w-md p-6 transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modTasksModalTitle" class="text-white text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-emerald-400"></i> Create Task
+                </h3>
+                <button id="closeTasksModalBtn" type="button" onclick="closeModal('modTasksModal')" class="text-gray-400 hover:text-white transition-colors text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="modTaskId" value="">
+            <input type="text" id="modTaskTitle" placeholder="Enter task objective..." class="w-full mb-4 p-3 rounded-lg bg-[#1E2030] text-white border border-[#2A2D3E] focus:outline-none focus:border-emerald-500 transition-colors">
+            <select id="modTaskCategory" class="w-full mb-6 p-3 rounded-lg bg-[#1E2030] text-white border border-[#2A2D3E] focus:outline-none focus:border-emerald-500 transition-colors">
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="School">School</option>
+            </select>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('modTasksModal')" class="px-4 py-2 text-gray-400 hover:text-white transition-colors text-sm font-medium">Cancel</button>
+                <button id="modSubmitTaskBtn" type="button" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors">Create Task</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modCalendarModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60] transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="modal-inner bg-[#151722] border border-[#2A2D3E] rounded-2xl w-full max-w-md p-6 transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-purple-400"></i> Schedule Task
+                </h3>
+                <button id="closeCalendarModalBtn" type="button" onclick="closeModal('modCalendarModal')" class="text-gray-400 hover:text-white transition-colors text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <label class="block text-xs text-gray-400 mb-1">Target Task</label>
+            <select id="modCalendarTaskSelect" class="w-full mb-4 p-3 rounded-lg bg-[#1E2030] text-white border border-[#2A2D3E] focus:outline-none focus:border-purple-500 transition-colors"></select>
+            <div class="flex gap-3 mb-6">
+                <div class="w-1/2">
+                    <label class="block text-xs text-gray-400 mb-1">Date</label>
+                    <input type="date" id="modCalendarDate" class="w-full p-3 rounded-lg bg-[#1E2030] text-white border border-[#2A2D3E] focus:outline-none focus:border-purple-500 transition-colors [color-scheme:dark]">
+                </div>
+                <div class="w-1/2">
+                    <label class="block text-xs text-gray-400 mb-1">Time</label>
+                    <input type="time" id="modCalendarTime" class="w-full p-3 rounded-lg bg-[#1E2030] text-white border border-[#2A2D3E] focus:outline-none focus:border-purple-500 transition-colors [color-scheme:dark]">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('modCalendarModal')" class="px-4 py-2 text-gray-400 hover:text-white transition-colors text-sm font-medium">Cancel</button>
+                <button id="modSubmitScheduleBtn" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors">Confirm Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modRemindersModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60] transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="modal-inner bg-[#151722] border border-[#2A2D3E] rounded-2xl w-full max-w-lg p-6 transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-amber-400"></i> Active Reminders
+                </h3>
+                <button id="closeRemindersBtn" type="button" onclick="closeModal('modRemindersModal')" class="text-gray-400 hover:text-white transition-colors text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="modRemindersList" class="max-h-60 overflow-y-auto space-y-2 pr-1 text-sm text-gray-400">
+                No active reminders currently.
+            </div>
+            <div class="flex justify-end mt-4">
+                <button onclick="closeModal('modRemindersModal')" class="px-4 py-2 bg-[#2A2D3E] hover:bg-[#32364A] text-white rounded-lg text-sm font-medium transition-colors">Close Alerts</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modInboxModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60] transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="modal-inner bg-[#151722] border border-[#2A2D3E] rounded-2xl w-full max-w-lg p-6 transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-inbox text-blue-400"></i> Inbox Logs
+                </h3>
+                <button id="closeInboxBtn" type="button" onclick="closeModal('modInboxModal')" class="text-gray-400 hover:text-white transition-colors text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="modInboxList" class="max-h-60 overflow-y-auto space-y-2 pr-1 text-sm text-gray-400">
+                No new notifications.
+            </div>
+            <div class="flex justify-end mt-4">
+                <button onclick="closeModal('modInboxModal')" class="px-4 py-2 bg-[#2A2D3E] hover:bg-[#32364A] text-white rounded-lg text-sm font-medium transition-colors">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Clock Synchronization Functions
+        function updateDynamicGreeting(hour) {
+            const greetingEl = document.getElementById('greetingMsg');
+            if (!greetingEl) return;
+
+            let greeting = 'Good evening';
+            if (hour >= 5 && hour < 12) {
+                greeting = 'Good morning';
+            } else if (hour >= 12 && hour < 18) {
+                greeting = 'Good afternoon';
+            }
+
+            if (greetingEl.textContent !== greeting) {
+                greetingEl.textContent = greeting;
+            }
+        }
+
+        function initClockUtilities() {
+            const timeEl = document.getElementById('liveTime');
+            const dateEl = document.getElementById('liveDate');
+
+            function refreshClock() {
+                const now = new Date();
+
+                if (timeEl) {
+                    timeEl.textContent = now.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+
+                if (dateEl) {
+                    dateEl.textContent = now.toLocaleDateString([], {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                }
+                
+                updateDynamicGreeting(now.getHours());
+            }
+
+            refreshClock();
+            setInterval(refreshClock, 1000);
+        }
+
+        // Define closeModal globally so the inline onclick buttons can access it
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            const inner = modal.querySelector('.modal-inner');
+            if(inner) {
+                inner.classList.remove('scale-100');
+                inner.classList.add('scale-95');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Start the synchronized clock engine
+            initClockUtilities();
+
+            // Internal function to open modals
+            const openModal = (modalId) => {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.classList.add('opacity-100');
+                const inner = modal.querySelector('.modal-inner');
+                if(inner) {
+                    inner.classList.remove('scale-95');
+                    inner.classList.add('scale-100');
+                }
+            };
+
+            // Helper function to bind click events to buttons/cards
+            const bindTrigger = (triggerId, modalId) => {
+                const trigger = document.getElementById(triggerId);
+                if (trigger) {
+                    trigger.addEventListener('click', () => openModal(modalId));
+                }
+            };
+
+            // Bind the feature cards to their respective modals
+            const bindCard = (triggerId, modalId) => {
+                const trigger = document.getElementById(triggerId);
+                if (trigger) {
+                    trigger.addEventListener('click', () => {
+                        if (triggerId === 'featureCardTasks') {
+                            if (typeof resetTaskModalState === 'function') resetTaskModalState();
+                        }
+                        openModal(modalId);
+                    });
+                }
+            };
+            bindCard('featureCardTasks', 'modTasksModal');
+            bindCard('featureCardCalendar', 'modCalendarModal');
+            bindCard('featureCardReminders', 'modRemindersModal');
+            bindCard('featureCardInbox', 'modInboxModal');
+            
+            // Also bind the "Add Task" button on the priority board to the tasks modal
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            if (addTaskBtn) {
+                addTaskBtn.addEventListener('click', () => {
+                    if (typeof resetTaskModalState === 'function') resetTaskModalState();
+                    openModal('modTasksModal');
+                });
+            }
+            
+            // Bind close buttons for Reminders & Inbox modals
+            const closeRemindersBtn = document.getElementById('closeRemindersBtn');
+            if (closeRemindersBtn) closeRemindersBtn.addEventListener('click', () => window.closeModal('modRemindersModal'));
+            const closeInboxBtn = document.getElementById('closeInboxBtn');
+            if (closeInboxBtn) closeInboxBtn.addEventListener('click', () => window.closeModal('modInboxModal'));
+        });
+    </script>
+</body>
+</html>
